@@ -1,0 +1,76 @@
+<<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>ChatRoom</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <link rel="stylesheet" href="">
+    </head>
+    <body>
+        <h2>{{room}}</h2>
+        <div id="display">
+        {% comment %} <div class="container darker">
+            <b>
+        </div> {% endcomment %}
+       </div> 
+
+       <script>
+        $(document).ready(function(){
+            setInterval(function(){
+                $.ajax({
+                    type:'GET',
+                    url:"/getMessages/{{room}}/",
+                    success:function(request){
+                        $('#display').empty();
+                        for(var key in response.messages)
+                        {
+                            var temp = "<div class='container darker'><b>" + reponse.messages[key].user+"</b><p>"+reponse.messages[key].value+"</p><spna class='time-left'>"+response.messages[key].date+"</span></div>";
+                            $("#display").append(temp);    
+                        }
+                    },
+                    error: function(response){
+                        alert('An error occured')
+                    }
+                });
+            },1000);
+        })
+       </script>
+
+       <div class="container">
+        <form id="post-form">
+            {% csrf_token %}
+            <input type="hidden" name="username" id="username" value="{{username}}"/><br>
+            <input type="hidden" name="room_id" id="room_id" value="{{room_details}}"/><br>
+            <input type="text" name="message" id="message" width="100px" /><br>
+            <input type="submit" value="Send">
+        </form>
+       </div>
+        <script type="text/javascript">
+            $(document).on('submit','#post-form',function(e){
+                e.preventDefault();
+                $.ajax({
+                    type:'POST',
+                    url:'/send',
+                    data:{
+                        username:$('#username').val(),
+                        room_id:$('#room_id').val(),
+                        message:$('#message').val(),
+                        csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+
+                    },
+                    success:function(data){
+                        //alert(data)
+                    }
+                });
+                document.getElementById('message').value = ''
+            });
+        </script>
+    </body>
+</html>
